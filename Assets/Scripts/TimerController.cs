@@ -3,7 +3,8 @@ using UnityEngine;
 public class TimerController : MonoBehaviour
 {
     private Timer _timer;
-
+    private Button _button;
+    private TMPro.TextMeshProUGUI _timerText;
     private int _pomodoro = 25;
     private int _shortBreak = 5;
     private int _longBreak = 15;
@@ -11,6 +12,9 @@ public class TimerController : MonoBehaviour
     private void Awake()
     {
         _timer = GetComponentInChildren<Timer>();
+        _button = GetComponentInChildren<Button>();
+        _timerText = GetComponentInChildren<TMPro.TextMeshProUGUI>();
+        _button.Initialize(this);
     }
 
     public void StartPomodoro()
@@ -33,7 +37,13 @@ public class TimerController : MonoBehaviour
         _timer.StartTimer();
     }
 
-    public void PauseTimer() { _timer.StopTimer(); }
+    public void CancelPomodoro()
+    {
+        _timer.CancelTimer();
+    }
 
-    public void ResumeTimer() { _timer.StartTimer(); }
+    public void StopPomodoro()
+    {
+        _timer.CancelTimer();
+    }
 }
