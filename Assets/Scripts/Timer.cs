@@ -54,10 +54,10 @@ public class Timer : MonoBehaviour
 
         if (_seconds > 0.0f) { return; }
 
-        _seconds = 59.0f;
+        _seconds = 60.0f;
         _minutes--;
 
-        if (_minutes > 0) { return; }
+        if (_minutes >= 0) { return; }
         CancelTimer();
         _action?.Invoke();
     }

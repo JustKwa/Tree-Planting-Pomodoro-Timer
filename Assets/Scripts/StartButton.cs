@@ -1,32 +1,36 @@
 using UnityEngine;
 using TMPro;
 
-public class Button : MonoBehaviour
+public class StartButton : MonoBehaviour
 {
     public enum ButtonState { Start, Stop, Cancel }
-
     private TimerController _timerController;
     private ButtonState _state;
-    private Timer _timer;
+    private Timer _cancelTimer;
+    private Timer _mainTimer;
     private TextMeshProUGUI _textMeshPro;
     private int _cancelableDuration = 10;
-
-    public void Initialize(TimerController timerController) => _timerController = timerController;
-
-    public void SetState(ButtonState state) => _state = state;
 
     private void Awake()
     {
         _state = ButtonState.Start;
         _textMeshPro = GetComponentInChildren<TextMeshProUGUI>();
-        _timer = GetComponentInChildren<Timer>();
-        _timer.SetTime(0, _cancelableDuration);
-        _timer.OnCountDownFinish(OnTimerFinished);
+        _cancelTimer = GetComponentInChildren<Timer>();
+        _cancelTimer.SetTime(0, _cancelableDuration);
+        _cancelTimer.OnCountDownFinish(OnCancelTimerFinished);
     }
+
+    public void Initialize(TimerController timerController, Timer mainTimer)
+    {
+        _timerController = timerController;
+        _mainTimer = mainTimer;
+        _mainTimer.OnCountDownFinish(OnMainTimerFinished);
+    }
+
+    public void SetState(ButtonState state) => _state = state;
 
     private void Update()
     {
-        // Set text for the button
         switch (_state)
         {
             case ButtonState.Start:
@@ -36,7 +40,7 @@ public class Button : MonoBehaviour
                 _textMeshPro.text = "Stop";
                 break;
             case ButtonState.Cancel:
-                _textMeshPro.text = "Cancel " + "(" + _timer.Second + ")";
+                _textMeshPro.text = "Cancel " + "(" + _cancelTimer.Second + ")";
                 break;
         }
     }
@@ -46,23 +50,23 @@ public class Button : MonoBehaviour
         switch (_state)
         {
             case ButtonState.Start:
-                _timer.StartTimer();
-                _timerController.StartPomodoro();
+                _cancelTimer.CancelTimer();
+                _cancelTimer.StartTimer();
+                _timerController.StartCountDown();
                 _state = ButtonState.Cancel;
                 break;
             case ButtonState.Stop:
-                _timer.CancelTimer();
                 _timerController.StopPomodoro();
                 _state = ButtonState.Start;
                 break;
             case ButtonState.Cancel:
-                _timer.CancelTimer();
                 _timerController.CancelPomodoro();
                 _state = ButtonState.Start;
                 break;
         }
     }
 
-    private void OnTimerFinished() => _state = ButtonState.Stop;
+    private void OnCancelTimerFinished() => _state = ButtonState.Stop;
 
+    private void OnMainTimerFinished() => _state = ButtonState.Start;
 }
